@@ -20,3 +20,8 @@ app.get("/", function (req, res) {
 app.get("/signup", function (req, res) {
   res.render("signup");
 });
+
+app.get('/home',function(req,res){
+    console.log("home connected");
+    res.render('home') 
+})
