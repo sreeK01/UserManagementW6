@@ -4,7 +4,7 @@ mongoose
   .connect("mongodb://localhost:27017/w6database")
 
   .then(() => {
-    console.log("mongodb successfully connected");
+    console.log("mongodb connected successfully");
   })
 
   .catch(() => {

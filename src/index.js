@@ -36,6 +36,34 @@ app.post("/signup", async (req, res) => {
 });
 
 
+app.post("/login", async (req, res) => {
+
+
+try{
+  const check=await collection.findOne({name:req.body.name})
+
+  if (check.password===req.body.password){
+
+    res.render('home')
+
+  }
+
+    else{
+      res.send('Wrong password')
+    }
+
+  }
+  catch{
+
+    res.send('You are not registered')
+  }
+
+
+
+});
+
+
+
 
 
 
