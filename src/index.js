@@ -7,7 +7,7 @@ const nocache = require("nocache");
 
 // Middleware setup
 app.use(
-  session({
+  session({ 
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
