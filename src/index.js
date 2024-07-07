@@ -67,8 +67,7 @@ app.get("/home", function (req, res) {
 
 // USER signup and login }}}
 
-// {{{ ADMIN signup and login 
-
+// {{{ ADMIN signup and login
 
 app.post("/adminSignup", async (req, res) => {
   const data = {
@@ -78,7 +77,7 @@ app.post("/adminSignup", async (req, res) => {
 
   await adminCollection.insertMany([data]);
 
-  res.render("adminHome"); 
+  res.render("adminHome");
 });
 
 app.post("/adminLogin", async (req, res) => {
@@ -102,9 +101,8 @@ app.get("/home", function (req, res) {
 
 // ADMIN signup and login >>
 
-
 //USER logout>>
 
-app.get('/userlogout', (req,res)=>{
-  res.redirect('/')
-} )
+app.get("/userlogout", (req, res) => {
+  res.redirect("/");
+});
