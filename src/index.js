@@ -60,6 +60,8 @@ app.get("/admin", (req, res) => {
   }
 });
 
+// Admin signup look compare >>
+
 app.get("/adminSignup", (req, res) => {
   res.render("adminSignup");
 });
@@ -123,7 +125,7 @@ app.get("/home", (req, res) => {
 app.post("/adminSignup", async (req, res) => {
   const { name, password } = req.body;
   try {
-    await adminCollection.insertOne({ name, password });
+    await adminCollection.insertMany({ name, password });
     req.session.admin = name; // Set session for the new admin
     res.redirect("/adminHome");
   } catch (error) {
