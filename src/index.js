@@ -7,7 +7,7 @@ const nocache = require("nocache");
 
 // Middleware setup
 app.use(
-  session({ 
+  session({
     secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
@@ -43,7 +43,11 @@ app.get("/", (req, res) => {
 
 // Signup page
 app.get("/signup", (req, res) => {
-  res.render("signup");
+  if (req.session.user) {
+    res.redirect("/home");
+  } else {
+    res.render("signup");
+  }
 });
 
 // Admin login and signup pages
@@ -59,40 +63,6 @@ app.get("/admin", (req, res) => {
 app.get("/adminSignup", (req, res) => {
   res.render("adminSignup");
 });
-
-// User signup
-// app.post("/signup", async (req, res) => {
-//   const { name, password } = req.body;
-//   try {
-//     await userCollection.insertMany({ name, password });
-//     req.session.user = name; // Set session for the new user
-//     res.redirect("/home");
-//   } catch (error) {
-//     console.error("Error signing up user:", error);
-//     res.render("signup", { msg: "Error signing up. Please try again." });
-//   }
-// });
-
-// User signup
-// app.post("/signup", async (req, res) => {
-//   const { name, password } = req.body;
-//   try {
-//     // Check if the user already exists
-//     const existingUser = await userCollection.findOne({ name });
-//     if (existingUser) {
-//       req.session.msg = "User already exists. Please choose a different name.";
-//       res.redirect("/");
-//     } else {
-//       // Insert the new user into the database
-//       await userCollection.insertMany([{ name, password }]);
-//       req.session.user = name; // Set session for the new user
-//       res.redirect("/home");
-//     }
-//   } catch (error) {
-//     console.error("Error signing up user:", error);
-//     res.render("signup", { msg: "Error signing up. Please try again." });
-//   }
-// });
 
 // User signup
 app.post("/signup", async (req, res) => {
