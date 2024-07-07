@@ -13,52 +13,47 @@ app.use(
   })
 );
 
-//nocache
+// Use nocache to disable caching
 app.use(nocache());
-
-
 
 const { userCollection, adminCollection } = require("./mongodb");
 
-app.use(express.urlencoded({ extended: false })); //learn
-
-app.use(express.json());
+app.use(express.urlencoded({ extended: false })); // To parse URL-encoded bodies
+app.use(express.json()); // To parse JSON bodies
 
 app.set("view engine", "hbs");
 
+// Server listening on port 3000
 app.listen(3000, function (req, res) {
-  console.log("port connected successfully ");
+  console.log("Server connected successfully on port 3000");
 });
 
+// Root route - login or home based on session
 app.get("/", function (req, res) {
-
-
-  //session
-
   if (req.session.user) {
     res.render("home");
   } else {
-    res.render("login");
+    res.render("login", { msg: req.session.msg });
+    req.session.msg = null; // Clear the error message after displaying it
   }
 });
 
+// Signup page
 app.get("/signup", function (req, res) {
   res.render("signup");
 });
 
-//Admin get >>
-
+// Admin login and signup pages
 app.get("/admin", function (req, res) {
-  res.render("adminLogin");
+  res.render("adminLogin", { msg: req.session.adminMsg });
+  req.session.adminMsg = null; // Clear the error message after displaying it
 });
 
 app.get("/adminSignup", function (req, res) {
   res.render("adminSignup");
 });
-//Admin get <<
 
-//<<< USER signup and login
-
+// User signup
 app.post("/signup", async (req, res) => {
   const data = {
     name: req.body.name,
@@ -66,38 +61,38 @@ app.post("/signup", async (req, res) => {
   };
 
   await userCollection.insertMany([data]);
-
-  res.render("home");
+  req.session.user = req.body.name; // Set session for the new user
+  res.redirect("/home");
 });
 
+// User login
 app.post("/login", async (req, res) => {
   try {
     const check = await userCollection.findOne({ name: req.body.name });
 
-    if (check.password === req.body.password) {
-      //session
-      req.session.user = req.body.name;
-
-      res.render("home");
+    if (check && check.password === req.body.password) {
+      req.session.user = req.body.name; // Set session
+      res.redirect("/home");
     } else {
-      res.render("login", { msg: "Wrong password" });
+      req.session.msg = "Wrong password";
+      res.redirect("/");
     }
   } catch {
-    res.render("login", {
-      msg: "You are not registered. Please create account ",
-    });
+    req.session.msg = "You are not registered. Please create an account.";
+    res.redirect("/");
   }
 });
 
+// Home route - check session
 app.get("/home", function (req, res) {
-  console.log("home connected");
-  res.render("home");
+  if (req.session.user) {
+    res.render("home");
+  } else {
+    res.redirect("/");
+  }
 });
 
-// USER signup and login }}}
-
-// {{{ ADMIN signup and login
-
+// Admin signup
 app.post("/adminSignup", async (req, res) => {
   const data = {
     name: req.body.name,
@@ -105,33 +100,55 @@ app.post("/adminSignup", async (req, res) => {
   };
 
   await adminCollection.insertMany([data]);
-
-  res.render("adminHome");
+  req.session.admin = req.body.name; // Set session for the new admin
+  res.redirect("/adminHome");
 });
 
+// Admin login
 app.post("/adminLogin", async (req, res) => {
   try {
     const check = await adminCollection.findOne({ name: req.body.name });
 
-    if (check.password === req.body.password) {
-      res.render("adminHome");
+    if (check && check.password === req.body.password) {
+      req.session.admin = req.body.name; // Set session
+      res.redirect("/adminHome");
     } else {
-      res.send("Wrong password");
+      req.session.adminMsg = "Wrong password";
+      res.redirect("/admin");
     }
   } catch {
-    res.send("You are not registered");
+    req.session.adminMsg = "You are not registered. Please create an account.";
+    res.redirect("/admin");
   }
 });
 
-app.get("/home", function (req, res) {
-  console.log("home connected");
-  res.render("home");
+// Admin home route - check session
+app.get("/adminHome", function (req, res) {
+  if (req.session.admin) {
+    res.render("adminHome");
+  } else {
+    res.redirect("/admin");
+  }
 });
 
-// ADMIN signup and login >>
-
-//USER logout>>
-
+// User logout
 app.get("/userlogout", (req, res) => {
-  res.redirect("/");
+  req.session.destroy(err => {
+    if (err) {
+      return res.redirect("/home");
+    }
+    res.clearCookie("connect.sid"); // Clear the session cookie
+    res.redirect("/");
+  });
+});
+
+// Admin logout
+app.get("/adminlogout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.redirect("/adminHome");
+    }
+    res.clearCookie("connect.sid"); // Clear the session cookie
+    res.redirect("/admin");
+  });
 });
