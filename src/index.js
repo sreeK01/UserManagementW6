@@ -102,7 +102,7 @@ app.get("/home", function (req, res) {
 // ADMIN signup and login >>
 
 //USER logout>>
-
+ 
 app.get("/userlogout", (req, res) => {
   res.redirect("/");
 });
