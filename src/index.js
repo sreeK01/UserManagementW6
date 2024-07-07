@@ -75,7 +75,7 @@ app.post("/signup", async (req, res) => {
 
   await adminCollection.insertMany([data]);
 
-  res.render("home");
+  res.render("home"); 
 });
 
 app.post("/login", async (req, res) => {
