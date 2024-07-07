@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const hbs = require("hbs");
+const path = require("path");
 const session = require("express-session");
 const nocache = require("nocache");
 
@@ -30,7 +31,7 @@ app.listen(3000, function (req, res) {
 // Root route - login or home based on session
 app.get("/", function (req, res) {
   if (req.session.user) {
-    res.render("home");
+    res.render("home", { user: req.session.user });
   } else {
     res.render("login", { msg: req.session.msg });
     req.session.msg = null; // Clear the error message after displaying it
@@ -85,7 +86,7 @@ app.post("/login", async (req, res) => {
 // Home route - check session
 app.get("/home", function (req, res) {
   if (req.session.user) {
-    res.render("home");
+    res.render("home", { user: req.session.user });
   } else {
     res.redirect("/");
   }
@@ -124,7 +125,7 @@ app.post("/adminLogin", async (req, res) => {
 // Admin home route - check session
 app.get("/adminHome", function (req, res) {
   if (req.session.admin) {
-    res.render("adminHome");
+    res.render("adminHome", { admin: req.session.admin });
   } else {
     res.redirect("/admin");
   }
