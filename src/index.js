@@ -121,7 +121,7 @@ app.post("/adminLogin", async (req, res) => {
     res.redirect("/admin");
   }
 });
- 
+
 // Admin home route - check session
 app.get("/adminHome", function (req, res) {
   if (req.session.admin) {
@@ -133,7 +133,7 @@ app.get("/adminHome", function (req, res) {
 
 // User logout
 app.get("/userlogout", (req, res) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       return res.redirect("/home");
     }
@@ -144,7 +144,7 @@ app.get("/userlogout", (req, res) => {
 
 // Admin logout
 app.get("/adminlogout", (req, res) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       return res.redirect("/adminHome");
     }
