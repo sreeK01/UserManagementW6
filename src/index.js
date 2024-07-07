@@ -6,11 +6,13 @@ const session = require("express-session");
 const nocache = require("nocache");
 
 // Middleware setup
-app.use(session({
-  secret: "keyboard cat",
-  resave: false,
-  saveUninitialized: true,
-}));
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 app.use(nocache()); // Disable caching
 
@@ -22,7 +24,7 @@ app.use(express.json());
 
 // View engine setup
 app.set("view engine", "hbs");
-app.set("views", path.join(__dirname, "views"));
+// app.set("views", path.join(__dirname, "views"));
 
 // Server listening on port 3000
 app.listen(3000, () => {
@@ -59,12 +61,60 @@ app.get("/adminSignup", (req, res) => {
 });
 
 // User signup
+// app.post("/signup", async (req, res) => {
+//   const { name, password } = req.body;
+//   try {
+//     await userCollection.insertMany({ name, password });
+//     req.session.user = name; // Set session for the new user
+//     res.redirect("/home");
+//   } catch (error) {
+//     console.error("Error signing up user:", error);
+//     res.render("signup", { msg: "Error signing up. Please try again." });
+//   }
+// });
+
+// User signup
+// app.post("/signup", async (req, res) => {
+//   const { name, password } = req.body;
+//   try {
+//     // Check if the user already exists
+//     const existingUser = await userCollection.findOne({ name });
+//     if (existingUser) {
+//       req.session.msg = "User already exists. Please choose a different name.";
+//       res.redirect("/");
+//     } else {
+//       // Insert the new user into the database
+//       await userCollection.insertMany([{ name, password }]);
+//       req.session.user = name; // Set session for the new user
+//       res.redirect("/home");
+//     }
+//   } catch (error) {
+//     console.error("Error signing up user:", error);
+//     res.render("signup", { msg: "Error signing up. Please try again." });
+//   }
+// });
+
+// User signup
 app.post("/signup", async (req, res) => {
   const { name, password } = req.body;
+
+  // Check if user is already authenticated
+  if (req.session.user) {
+    return res.redirect("/home");
+  }
+
   try {
-    await userCollection.insertOne({ name, password });
-    req.session.user = name; // Set session for the new user
-    res.redirect("/home");
+    // Check if the user already exists
+    const existingUser = await userCollection.findOne({ name });
+    if (existingUser) {
+      req.session.msg = "User already exists. Please choose a different name.";
+      res.redirect("/");
+    } else {
+      // Insert the new user into the database
+      await userCollection.insertMany([{ name, password }]);
+      req.session.user = name; // Set session for the new user
+      res.redirect("/home");
+    }
   } catch (error) {
     console.error("Error signing up user:", error);
     res.render("signup", { msg: "Error signing up. Please try again." });
@@ -80,7 +130,7 @@ app.post("/login", async (req, res) => {
       req.session.user = name; // Set session
       res.redirect("/home");
     } else {
-      req.session.msg = "Wrong password";
+      req.session.msg = "Wrong credentials";
       res.redirect("/");
     }
   } catch (error) {
@@ -108,7 +158,9 @@ app.post("/adminSignup", async (req, res) => {
     res.redirect("/adminHome");
   } catch (error) {
     console.error("Error signing up admin:", error);
-    res.render("adminSignup", { msg: "Error signing up admin. Please try again." });
+    res.render("adminSignup", {
+      msg: "Error signing up admin. Please try again.",
+    });
   }
 });
 
@@ -121,7 +173,7 @@ app.post("/adminLogin", async (req, res) => {
       req.session.admin = name; // Set session
       res.redirect("/adminHome");
     } else {
-      req.session.adminMsg = "Wrong password";
+      req.session.adminMsg = "Wrong credentials";
       res.redirect("/admin");
     }
   } catch (error) {

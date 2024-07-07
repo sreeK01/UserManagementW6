@@ -18,7 +18,7 @@ const LogInSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true, 
+    required: true,
   },
 });
 
@@ -29,7 +29,7 @@ const AdminLogInSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true, 
+    required: true,
   },
 });
 
@@ -38,4 +38,3 @@ const userCollection = new mongoose.model("userCollection", LogInSchema);
 const adminCollection = new mongoose.model("adminCollection", AdminLogInSchema);
 
 module.exports = { userCollection, adminCollection };
-
