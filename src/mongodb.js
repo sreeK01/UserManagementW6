@@ -33,9 +33,9 @@ const AdminLogInSchema = new mongoose.Schema({
   },
 });
 
-const collection = new mongoose.model("Collection1", LogInSchema);
+const userCollection = new mongoose.model("userCollection", LogInSchema);
 
 const adminCollection = new mongoose.model("adminCollection", AdminLogInSchema);
 
-module.exports = { collection, adminCollection };
+module.exports = { userCollection, adminCollection };
 

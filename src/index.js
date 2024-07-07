@@ -1,8 +1,9 @@
 const express = require("express");
 const app = express();
-const path = require("path");
 const hbs = require("hbs");
-const { collection, adminCollection } = require("./mongodb");
+const path = require("path");
+
+const { userCollection, adminCollection } = require("./mongodb");
 
 app.use(express.urlencoded({ extended: false })); //learn
 
@@ -40,14 +41,14 @@ app.post("/signup", async (req, res) => {
     password: req.body.password,
   };
 
-  await collection.insertMany([data]);
+  await userCollection.insertMany([data]);
 
   res.render("home");
 });
 
 app.post("/login", async (req, res) => {
   try {
-    const check = await collection.findOne({ name: req.body.name });
+    const check = await userCollection.findOne({ name: req.body.name });
 
     if (check.password === req.body.password) {
       res.render("home");
@@ -64,10 +65,12 @@ app.get("/home", function (req, res) {
   res.render("home");
 });
 
-// USER signup and login >>>
+// USER signup and login }}}
+
+// {{{ ADMIN signup and login 
 
 
-app.post("/signup", async (req, res) => {
+app.post("/adminSignup", async (req, res) => {
   const data = {
     name: req.body.name,
     password: req.body.password,
@@ -75,15 +78,15 @@ app.post("/signup", async (req, res) => {
 
   await adminCollection.insertMany([data]);
 
-  res.render("home"); 
+  res.render("home");
 });
 
-app.post("/login", async (req, res) => {
+app.post("/adminLogin", async (req, res) => {
   try {
     const check = await adminCollection.findOne({ name: req.body.name });
 
     if (check.password === req.body.password) {
-      res.render("home");
+      res.render("adminHome");
     } else {
       res.send("Wrong password");
     }
@@ -96,3 +99,12 @@ app.get("/home", function (req, res) {
   console.log("home connected");
   res.render("home");
 });
+
+// ADMIN signup and login >>
+
+
+//USER logout>>
+
+app.get('/userlogout', (req,res)=>{
+  res.redirect('/')
+} )
