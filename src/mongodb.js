@@ -22,6 +22,20 @@ const LogInSchema = new mongoose.Schema({
   },
 });
 
+const AdminLogInSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true, 
+  },
+});
+
 const collection = new mongoose.model("Collection1", LogInSchema);
 
-module.exports = collection;
+const adminCollection = new mongoose.model("adminCollection", AdminLogInSchema);
+
+module.exports = { collection, adminCollection };
+
