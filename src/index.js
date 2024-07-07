@@ -2,6 +2,21 @@ const express = require("express");
 const app = express();
 const hbs = require("hbs");
 const path = require("path");
+const session = require("express-session");
+const nocache = require("nocache");
+
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+//nocache
+app.use(nocache());
+
+
 
 const { userCollection, adminCollection } = require("./mongodb");
 
@@ -16,14 +31,22 @@ app.listen(3000, function (req, res) {
 });
 
 app.get("/", function (req, res) {
-  res.render("login");
+
+
+  //session
+
+  if (req.session.user) {
+    res.render("home");
+  } else {
+    res.render("login");
+  }
 });
 
 app.get("/signup", function (req, res) {
   res.render("signup");
 });
 
-//Admin
+//Admin get >>
 
 app.get("/admin", function (req, res) {
   res.render("adminLogin");
@@ -32,6 +55,7 @@ app.get("/admin", function (req, res) {
 app.get("/adminSignup", function (req, res) {
   res.render("adminSignup");
 });
+//Admin get <<
 
 //<<< USER signup and login
 
@@ -51,12 +75,17 @@ app.post("/login", async (req, res) => {
     const check = await userCollection.findOne({ name: req.body.name });
 
     if (check.password === req.body.password) {
+      //session
+      req.session.user = req.body.name;
+
       res.render("home");
     } else {
-      res.send("Wrong password");
+      res.render("login", { msg: "Wrong password" });
     }
   } catch {
-    res.send("You are not registered");
+    res.render("login", {
+      msg: "You are not registered. Please create account ",
+    });
   }
 });
 
@@ -102,7 +131,7 @@ app.get("/home", function (req, res) {
 // ADMIN signup and login >>
 
 //USER logout>>
- 
+
 app.get("/userlogout", (req, res) => {
   res.redirect("/");
 });
