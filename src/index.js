@@ -191,3 +191,105 @@ app.get("/adminlogout", (req, res) => {
     res.redirect("/admin");
   });
 });
+
+// ADMIN CRUD OPERATIONS >>
+
+
+
+
+
+
+
+
+
+
+
+// View all users
+app.get('/admin/users', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  try {
+    const users = await userCollection.find({});
+    res.render('adminUsers', { users });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).send('Error fetching users');
+  }
+});
+
+// Search users
+app.get('/admin/users/search', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  const { query } = req.query;
+  try {
+    const users = await userCollection.find({ name: new RegExp(query, 'i') });
+    res.render('adminUsers', { users, query });
+  } catch (error) {
+    console.error('Error searching users:', error);
+    res.status(500).send('Error searching users');
+  }
+});
+
+// Create user
+app.post('/admin/users/create', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  const { name, password } = req.body;
+  try {
+    await userCollection.create({ name, password });
+    res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).send('Error creating user');
+  }
+});
+
+// Delete user
+app.post('/admin/users/delete/:id', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  const { id } = req.params;
+  try {
+    await userCollection.findByIdAndDelete(id);
+    res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).send('Error deleting user');
+  }
+});
+
+// Edit user form
+app.get('/admin/users/edit/:id', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  const { id } = req.params;
+  try {
+    const user = await userCollection.findById(id);
+    res.render('adminEditUser', { user });
+  } catch (error) {
+    console.error('Error fetching user for edit:', error);
+    res.status(500).send('Error fetching user for edit');
+  }
+});
+
+// Update user
+app.post('/admin/users/update/:id', async (req, res) => {
+  if (!req.session.admin) {
+    return res.redirect('/admin');
+  }
+  const { id } = req.params;
+  const { name, password } = req.body;
+  try {
+    await userCollection.findByIdAndUpdate(id, { name, password });
+    res.redirect('/admin/users');
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).send('Error updating user');
+  }
+});
