@@ -60,10 +60,14 @@ app.get("/admin", (req, res) => {
   }
 });
 
-// Admin signup look compare >>
+// Admin signup look compare  PENDING RESUME FROM HERE >>
 
 app.get("/adminSignup", (req, res) => {
-  res.render("adminSignup");
+  if (req.session.admin) {
+    res.redirect("/adminHome");
+  } else {
+    res.render("adminSignup");
+  }
 });
 
 // User signup
