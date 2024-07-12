@@ -5,7 +5,7 @@ const path = require("path");
 const session = require("express-session");
 const nocache = require("nocache");
 
-// Middleware setup
+// middleware setup
 app.use(
   session({
     secret: "keyboard cat",  
@@ -16,7 +16,7 @@ app.use(
 
 app.use(nocache()); // Disable caching
 
-// Database connection (assuming userCollection and adminCollection are properly imported)
+// database connection 
 const { userCollection, adminCollection } = require("./mongodb");
 
 app.use(express.urlencoded({ extended: false }));
@@ -24,7 +24,6 @@ app.use(express.json());
 
 // View engine setup
 app.set("view engine", "hbs");
-// app.set("views", path.join(__dirname, "views"));
 
 // Server listening on port 3000
 app.listen(3000, () => {
@@ -60,7 +59,7 @@ app.get("/admin", (req, res) => {
   }
 });
 
-// Admin signup look compare  PENDING RESUME FROM HERE >>
+// Admin signup >>
 
 app.get("/adminSignup", (req, res) => {
   if (req.session.admin) {
