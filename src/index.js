@@ -4,11 +4,12 @@ const hbs = require("hbs");
 const path = require("path");
 const session = require("express-session");
 const nocache = require("nocache");
+require("dotenv").config();
 
 // middleware setup
 app.use(
   session({
-    secret: "keyboard cat",  
+    secret: "keyboard cat",
     resave: false,
     saveUninitialized: true,
   })
@@ -16,8 +17,9 @@ app.use(
 
 app.use(nocache()); // Disable caching
 
-// database connection 
+// database connection
 const { userCollection, adminCollection } = require("./mongodb");
+// const { configDotenv } = require("dotenv"); //<< outdated
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -36,7 +38,7 @@ app.get("/", (req, res) => {
     res.redirect("/home");
   } else {
     res.render("login", { msg: req.session.msg });
-    req.session.msg = null; // Clear the error message after displaying it
+    req.session.msg = null; // clear the error message after displaying it
   }
 });
 
@@ -45,7 +47,8 @@ app.get("/signup", (req, res) => {
   if (req.session.user) {
     res.redirect("/home");
   } else {
-    res.render("signup");
+    res.render("signup", { msg: req.session.msg });
+    req.session.msg = null; // clear the error message after displaying it
   }
 });
 
@@ -83,7 +86,7 @@ app.post("/signup", async (req, res) => {
     const existingUser = await userCollection.findOne({ name });
     if (existingUser) {
       req.session.msg = "User already exists. Please choose a different name.";
-      res.redirect("/");
+      res.redirect("/signup");
     } else {
       // Insert the new user into the database
       await userCollection.insertMany([{ name, password }]);
@@ -103,6 +106,7 @@ app.post("/login", async (req, res) => {
     const user = await userCollection.findOne({ name });
     if (user && user.password === password) {
       req.session.user = name; // Set session
+
       res.redirect("/home");
     } else {
       req.session.msg = "Wrong credentials";
@@ -193,102 +197,94 @@ app.get("/adminlogout", (req, res) => {
 
 // ADMIN CRUD OPERATIONS >>
 
-
-
-
-
-
-
-
-
-
-
 // View all users
-app.get('/admin/users', async (req, res) => {
+app.get("/admin/users", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   try {
     const users = await userCollection.find({});
-    res.render('adminUsers', { users });
+    res.render("adminUsers", { users });
   } catch (error) {
-    console.error('Error fetching users:', error);
-    res.status(500).send('Error fetching users');
+    console.error("Error fetching users:", error);
+    res.status(500).send("Error fetching users");
   }
 });
 
 // Search users
-app.get('/admin/users/search', async (req, res) => {
+app.get("/admin/users/search", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   const { query } = req.query;
   try {
-    const users = await userCollection.find({ name: new RegExp(query, 'i') });
-    res.render('adminUsers', { users, query });
+    const users = await userCollection.find({ name: new RegExp(query, "i") });
+    res.render("adminUsers", { users, query });
   } catch (error) {
-    console.error('Error searching users:', error);
-    res.status(500).send('Error searching users');
+    console.error("Error searching users:", error);
+    res.status(500).send("Error searching users");
   }
 });
 
 // Create user
-app.post('/admin/users/create', async (req, res) => {
+app.post("/admin/users/create", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   const { name, password } = req.body;
   try {
     await userCollection.create({ name, password });
-    res.redirect('/admin/users');
+    res.redirect("/admin/users");
   } catch (error) {
-    console.error('Error creating user:', error);
-    res.status(500).send('Error creating user');
+    console.error("Error creating user:", error);
+    res.status(500).send("Error creating user");
   }
 });
 
 // Delete user
-app.post('/admin/users/delete/:id', async (req, res) => {
+app.post("/admin/users/delete/:id", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   const { id } = req.params;
   try {
     await userCollection.findByIdAndDelete(id);
-    res.redirect('/admin/users');
+    res.redirect("/admin/users");
   } catch (error) {
-    console.error('Error deleting user:', error);
-    res.status(500).send('Error deleting user');
+    console.error("Error deleting user:", error);
+    res.status(500).send("Error deleting user");
   }
 });
 
 // Edit user form
-app.get('/admin/users/edit/:id', async (req, res) => {
+app.get("/admin/users/edit/:id", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   const { id } = req.params;
   try {
     const user = await userCollection.findById(id);
-    res.render('adminEditUser', { user });
+    res.render("adminEditUser", { user });
   } catch (error) {
-    console.error('Error fetching user for edit:', error);
-    res.status(500).send('Error fetching user for edit');
+    console.error("Error fetching user for edit:", error);
+    res.status(500).send("Error fetching user for edit");
   }
 });
 
 // Update user
-app.post('/admin/users/update/:id', async (req, res) => {
+app.post("/admin/users/update/:id", async (req, res) => {
   if (!req.session.admin) {
-    return res.redirect('/admin');
+    return res.redirect("/admin");
   }
   const { id } = req.params;
   const { name, password } = req.body;
   try {
     await userCollection.findByIdAndUpdate(id, { name, password });
-    res.redirect('/admin/users');
+    res.redirect("/admin/users");
   } catch (error) {
-    console.error('Error updating user:', error);
-    res.status(500).send('Error updating user');
+    console.error("Error updating user:", error);
+    res.status(500).send("Error updating user");
   }
 });
+
+
